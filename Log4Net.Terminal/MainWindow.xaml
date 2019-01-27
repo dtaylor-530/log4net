@@ -8,11 +8,6 @@
      xmlns:vw="clr-namespace:Log4NetWPF;assembly=Log4NetWPF"
     Title="Window1" Height="391" Width="500">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="150*" />
-            <RowDefinition Height="203*" />
-        </Grid.RowDefinitions>
-        <!--<vw:LogwriterView Grid.Row="0" />-->
         <vw:LogView Grid.Row="1" />
     </Grid>
 </Window>
