@@ -1,0 +1,147 @@
+﻿<Window x:Class="DemoApplication2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DemoApplication2"
+        xmlns:viewmodels="clr-namespace:DemoApplication2.ViewModels"
+        xmlns:dlog="clr-namespace:Log4NetWPF;assembly=Log4NetWPF"
+        xmlns:physicscontrols="clr-namespace:PhysicsControl"
+        xmlns:shapes="clr-namespace:Shapes"
+        mc:Ignorable="d"
+        Title="MainWindow" Width="500" Height="300" SizeToContent="WidthAndHeight">
+   
+    <Window.Resources>
+         <!--<viewmodels:Node x:Key="node" />-->
+        <Style x:Key="ContentCtrl" TargetType="{x:Type  physicscontrols:Particle}">
+            <Setter Property="Background" Value="Red"/>
+            <Setter Property="Foreground" Value="Green"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type physicscontrols:Particle}">
+                        <Grid>
+                            <!--Keep the Ellipse a circle when ContentControl.Width
+                    is set.-->
+                            <Ellipse Width="{TemplateBinding Width}"
+                         Height="{TemplateBinding Width}"
+                         Fill="{TemplateBinding Background}"/>
+                            <ContentPresenter VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PolyLine1" TargetType="{x:Type  shapes:Trajectory}">
+            <!--<Setter Property="Stroke" Value="Red"/>
+            <Setter Property="StrokeFitness" Value="2"/>-->
+            <!--<Setter Property="X1" Value="2"/>
+            <Setter Property="Y1" Value="2"/>
+            <Setter Property="X2" Value="60"/>
+            <Setter Property="Y2" Value="60"/>-->
+        </Style>
+
+   
+    </Window.Resources>
+    <DockPanel>
+        <GroupBox Header="NodeDetails" Height="100">
+        <Grid DockPanel.Dock="Right">
+    
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="30" />
+
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+
+            </Grid.RowDefinitions>
+
+                <Label Grid.Column="0" Grid.Row="0">X</Label>
+                <Label Grid.Column="0" Grid.Row="1">Y</Label>
+                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Node.X}"></TextBlock>
+                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Node.Y}"></TextBlock>
+            </Grid>
+        </GroupBox>
+
+
+        <StackPanel Name="StackPanel1" DockPanel.Dock="Left" Margin="0,0,0,0"  >
+
+            <dlog:LogView>
+                
+            </dlog:LogView>
+            <Canvas Name="Canvas1"   Height="200" Width="200" Background="Beige">
+                <physicscontrols:Particle  x:Name="ball1" Margin="0" Foreground="Red"  Style="{StaticResource ContentCtrl}" >
+
+                </physicscontrols:Particle>
+                <shapes:Trajectory x:Name="Trajectory1" Stroke="Firebrick" StrokeThickness="2" Style="{StaticResource PolyLine1}"/>
+                <TextBlock Text="{Binding ElementName=Line1.StrokeThickness}"></TextBlock>
+            </Canvas>
+            
+            
+            <TextBlock Text="{Binding X,FallbackValue='000000000'}"></TextBlock>
+            <Canvas DataContext="{Binding Node}" HorizontalAlignment="Left" Margin="0" Width="340" Height="215" >
+
+                <TextBlock Text="{Binding X,FallbackValue='000000000'}"></TextBlock>
+                <!-- This Path is only to show the path that the animated object will follow. -->
+                <Path Name="myConnection" VerticalAlignment="Top" Margin="15,15,15,15" 
+          Data="M 10,100 C 35,0 135,0 160,100 180,190 285,200 310,100"
+          Stroke="Black" StrokeThickness="2"
+          Stretch="None" />
+
+            <!-- This geometry renders the rectangle that is animated across the screen. -->
+                <Rectangle Name="myNode" Fill="Blue" DataContext="{Binding Node}" Height= "{Binding X,Mode=TwoWay}" Width="20" Canvas.Left="{Binding X,Mode=TwoWay}">
+                    <!---->
+                    <!--<Path.Data>
+                    <RectangleGeometry  x:Name="MyAnimatedRectGeometry" Rect="0,0 30 30" />
+                </Path.Data>-->
+                    <Rectangle.RenderTransform  >
+                        <TranslateTransform x:Name="MyAnimatedTransform" X="{Binding X,Mode=TwoWay}" Y="{Binding Y,Mode=TwoWay}"  />
+                </Rectangle.RenderTransform>
+            </Rectangle>
+        </Canvas>
+        <Button Width="100" HorizontalAlignment="Center" Content="Start Animations" Margin="10" >
+            <!-- Trigger and StoryBoard to initiate the animation when the button is clicked. -->
+            <Button.Triggers>
+                <EventTrigger RoutedEvent="ButtonBase.Click">
+                    <BeginStoryboard x:Name="MyBeginStoryboard">
+                        <Storyboard>
+
+                            <!-- Animates the rectangle horizotally along the path. -->
+                            <DoubleAnimationUsingPath
+                                Storyboard.Target="{Binding Node}"
+                Storyboard.TargetName="MyAnimatedTransform"
+                Storyboard.TargetProperty="X"
+                Source="X" 
+                Duration="0:0:5" 
+                RepeatBehavior="Forever" AutoReverse="True" >
+                                <DoubleAnimationUsingPath.PathGeometry>
+                                    <PathGeometry Figures="M 10,100 C 35,0 135,0 160,100 180,190 285,200 310,100" />
+                                </DoubleAnimationUsingPath.PathGeometry>
+                            </DoubleAnimationUsingPath>
+
+                            <!-- Animates the rectangle vertically along the path. -->
+                            <DoubleAnimationUsingPath
+                Storyboard.TargetName="MyAnimatedTransform"
+                Storyboard.TargetProperty="Y"
+                Source="Y" 
+                Duration="0:0:5" 
+                RepeatBehavior="Forever" AutoReverse="True" >
+                                <DoubleAnimationUsingPath.PathGeometry>
+                                    <PathGeometry Figures="M 10,100 C 35,0 135,0 160,100 180,190 285,200 310,100" />
+                                </DoubleAnimationUsingPath.PathGeometry>
+                            </DoubleAnimationUsingPath>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Button.Triggers>
+        </Button>
+        <!-- Create button to restart the animations. -->
+
+    </StackPanel>
+    </DockPanel>
+</Window>
